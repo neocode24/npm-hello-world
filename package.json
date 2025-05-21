@@ -1,12 +1,16 @@
 {
   "name": "npm-hello-world",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "lint": "eslint .",
+    "test": "jest --passWithNoTests",
+    "build": "mkdir -p dist && cp *.js dist/ && cp package.json dist/ && echo 'build step executed'"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.1.0",
+    "jest": "^29.0.0"
+  }
 }
