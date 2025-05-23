@@ -1,5 +1,0 @@
-{
-  "scripts": {
-    "format:check": "prettier --check ."
-  }
-}
