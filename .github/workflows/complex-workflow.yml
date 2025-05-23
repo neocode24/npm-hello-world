@@ -2,9 +2,9 @@ name: Complex Workflow
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint:
@@ -13,19 +13,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
-          cache: 'npm'
-          
+          node-version: "22"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Run linting
         run: npm run lint
-        
+
   build:
     name: Build
     needs: lint
@@ -35,28 +35,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
-          cache: 'npm'
-          
+          node-version: "22"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-        
+
       - id: build-step
         name: Build application
         run: |
           npm run build
           echo "time=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
-          
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@master
         with:
           name: build-files
           path: dist/
-          
+
   test:
     name: Test
     needs: build
@@ -67,25 +67,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Download build artifacts
         uses: actions/download-artifact@master
         with:
           name: build-files
           path: dist/
-          
+
       - name: Run tests
         run: npm test
-        
+
   deploy-staging:
     name: Deploy to Staging
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
@@ -98,15 +98,15 @@ jobs:
         with:
           name: build-files
           path: dist/
-          
+
       - name: Display build time
         run: echo "Build completed at ${{ needs.build.outputs.build-time }}"
-        
+
       - name: Deploy to staging
         run: |
           echo "Deploying to staging environment..."
           # 실제 배포 명령어가 여기에 들어갑니다
-          
+
   deploy-production:
     name: Deploy to Production
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -119,10 +119,10 @@ jobs:
         with:
           name: build-files
           path: dist/
-          
+
       - name: Display build time
         run: echo "Build completed at ${{ needs.build.outputs.build-time }}"
-        
+
       - name: Deploy to production
         run: |
           echo "Deploying to production environment..."
