@@ -5,9 +5,12 @@ on:
   push:
     branches: [ main ]
 
+env:
+  GLOBAL_VAR: "This is a global variable"
+  
 jobs:
   hello:
     runs-on: ubuntu-latest
     steps:
       - name: Hello step
-        run: echo "Hello, GitHub Actions!"
+        run: echo "Hello, GitHub Actions! ${{ env.GLOBAL_VAR }}"
