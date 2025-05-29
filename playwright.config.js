@@ -1,5 +1,5 @@
 // playwright.config.js
-const { defineConfig } from '@playwright/test';
+const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './tests',
