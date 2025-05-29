@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        browser: [chrome, firefox, safari]
+        browser: [chrome, firefox, webkib]
     
     steps:
       - uses: actions/checkout@v3
