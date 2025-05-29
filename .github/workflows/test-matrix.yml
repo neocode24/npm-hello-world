@@ -1,0 +1,23 @@
+name: Matrix Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chrome, firefox, safari]
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Playwright 설치
+        uses: microsoft/playwright-github-action@v1
+      
+      - name: 의존성 설치
+        run: npm ci
+      
+      - name: ${{ matrix.browser }} 테스트 실행
+        run: npx playwright test --browser=${{ matrix.browser }}
