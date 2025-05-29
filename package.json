@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest --passWithNoTests",
+    "test": "jest --passWithNoTests --coverage",
     "build": "mkdir -p dist && cp *.js dist/ && cp package.json dist/ && echo 'build step executed'",
     "format": "prettier --write .",
     "format:check": "prettier --check . '!**config.js' '!**/.github/workflows/*' '!test-**/*' '!tests/**' '**/*.js'"
