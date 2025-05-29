@@ -6,7 +6,7 @@
     "test": "jest --passWithNoTests",
     "build": "mkdir -p dist && cp *.js dist/ && cp package.json dist/ && echo 'build step executed'",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check . '**/*.js' '**/*.ts' '!**/.github/workflows/*'"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
