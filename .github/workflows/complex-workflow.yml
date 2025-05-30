@@ -61,7 +61,6 @@ jobs:
     name: Test
     needs: build
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       matrix:
         node-version: [16, 22]
@@ -85,7 +84,7 @@ jobs:
           path: dist/
 
       - name: Run tests
-        run: npm test
+        run: npm run test:unit
 
   deploy-staging:
     name: Deploy to Staging
