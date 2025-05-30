@@ -1,0 +1,21 @@
+name: Skip Test
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: false  # 이 job은 실행되지 않고 skipped 됨
+    continue-on-error: true
+    steps:
+      - run: exit 1
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "배포 진행"
+
+
