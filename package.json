@@ -8,7 +8,7 @@
     "test:integration": "jest --config jest.integration.config.js",
     "build": "mkdir -p dist && cp *.js dist/ && cp package.json dist/ && echo 'build step executed'",
     "format": "prettier --write .",
-    "format:check": "prettier --check . '!**config.js' '!**/.github/workflows/*'"
+    "format:check": "prettier --check . "
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
