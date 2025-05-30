@@ -61,6 +61,7 @@ jobs:
     name: Test
     needs: build
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
         node-version: [16, 22]

@@ -1,5 +1,5 @@
-# .github/workflows/tests.yml
-name: 테스트
+# .github/workflows/integration-test.yml
+name: Integration-Test
 
 on:
   push:
