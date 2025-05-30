@@ -1,0 +1,60 @@
+# .github/workflows/tests.yml
+name: 테스트
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Node.js 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+      
+      - name: 의존성 설치
+        run: npm ci
+      
+      - name: 단위 테스트 실행
+        run: npm run test:unit
+  
+  integration-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Node.js 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+      
+      - name: 의존성 설치
+        run: npm ci
+      
+      - name: 통합 테스트 실행
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
