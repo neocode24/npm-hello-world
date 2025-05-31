@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 빌드 단계
+      - run: npm ci
   
   deploy-dev:
     needs: build
@@ -16,6 +17,7 @@ jobs:
     environment: development  # 자동 승인
     steps:
       # 개발 환경 배포 단계
+      - run: npm ci
   
   deploy-staging:
     needs: deploy-dev
@@ -23,6 +25,7 @@ jobs:
     environment: staging  # 수동 승인 필요
     steps:
       # 스테이징 환경 배포 단계
+      - run: npm ci
   
   deploy-production:
     needs: deploy-staging
@@ -30,3 +33,4 @@ jobs:
     environment: production  # 수동 승인 필요
     steps:
       # 프로덕션 환경 배포 단계
+      - run: npm ci
