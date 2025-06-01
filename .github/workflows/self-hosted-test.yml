@@ -1,19 +1,11 @@
-name: Skip Test on Self-hosted
+name: Test on Self-hosted
 
 on:
   workflow_dispatch:
 
 
 jobs:
-  test:
-    runs-on: self-hosted
-    if: false  # 이 job은 실행되지 않고 skipped 됨
-    continue-on-error: true
-    steps:
-      - run: exit 1
-
   deploy:
-    needs: test
     runs-on: self-hosted
     steps:
       - run: echo "배포 진행"
