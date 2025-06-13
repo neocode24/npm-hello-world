@@ -52,9 +52,12 @@ jobs:
     needs: build
 
     env:
-      ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
-      ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
-      ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      AZURE_ACR_NAME: ${{ secrets.AZURE_ACR_NAME }}
+      AZURE_ACR_REPOSITORY: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io
 
     permissions:
       contents: write
@@ -79,12 +82,14 @@ jobs:
           name: build-files
           path: dist/
 
-      - name: ACR login
-        uses: azure/docker-login@v1
+      - name: Login Azure
+        uses: azure/login@v1
         with:
-          login-server: ${{ env.ACR_LOGIN_SERVER }}
-          username: ${{ env.ACR_USERNAME }}
-          password: ${{ env.ACR_PASSWORD }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Login ACR
+        run: az acr login --name ${{ env.AZURE_ACR_NAME }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.6.1
@@ -97,11 +102,11 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          cache-from: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/${{ github.event.repository.name }}-cache
-          cache-to: type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/${{ github.event.repository.name }}-cache,mode=max
+          cache-from: type=registry,ref=${{ env.AZURE_ACR_REPOSITORY }}/${{ github.event.repository.name }}-cache
+          cache-to: type=registry,ref=${{ env.AZURE_ACR_REPOSITORY }}/${{ github.event.repository.name }}-cache,mode=max
           tags: |
-            ${{ env.ACR_LOGIN_SERVER }}/${{ github.event.repository.name }}-${{ needs.build.outputs.branch }}:${{ env.IMAGE_TAG }}
-            ${{ env.ACR_LOGIN_SERVER }}/${{ github.event.repository.name }}-${{ needs.build.outputs.branch }}:latest
+            ${{ env.AZURE_ACR_REPOSITORY }}/${{ github.event.repository.name }}-${{ needs.build.outputs.branch }}:${{ env.IMAGE_TAG }}
+            ${{ env.AZURE_ACR_REPOSITORY }}/${{ github.event.repository.name }}-${{ needs.build.outputs.branch }}:latest
 
       - id: set_tag
         name: Add Git tag to source repository and setup output"
@@ -115,7 +120,7 @@ jobs:
           
           echo "image_tag=$(echo ${{ env.IMAGE_TAG }})" >> $GITHUB_OUTPUT
 
-          
+
   trigger-argocd-sync:
     needs: [ build, containerize ]
     runs-on: ubuntu-latest
@@ -127,7 +132,8 @@ jobs:
       GITOPS_PATH: "dev"
       GITOPS_PAT: ${{ secrets.GITOPS_PAT }}
 
-      ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+      AZURE_ACR_NAME: ${{ secrets.AZURE_ACR_NAME }}
+      AZURE_ACR_REPOSITORY: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io
 
       ARGOCD_APP_NAME: npm-hello-world
       ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
@@ -164,7 +170,15 @@ jobs:
         run: |
           cd ${{ env.GITOPS_APP_PATH }}/${{ env.GITOPS_PATH }}
           kustomize edit set image \
-            ${{ env.ARGOCD_APP_NAME }}=${{ env.ACR_LOGIN_SERVER }}/${{ env.ARGOCD_APP_NAME }}-${{ env.BUILD_BRANCH}}:${{ needs.containerize.outputs.image_tag }}
+            ${{ env.ARGOCD_APP_NAME }}=${{ env.AZURE_ACR_REPOSITORY }}/${{ env.ARGOCD_APP_NAME }}-${{ env.BUILD_BRANCH}}:${{ needs.containerize.outputs.image_tag }}
+
+      - name: Git commit and push changes to GitOps repo
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git add .
+          git commit -m "Update image tag to ${{ needs.containerize.outputs.image_tag }}"
+          git push origin HEAD
 
       - name: Login ArgoCD
         run: |
@@ -183,7 +197,7 @@ jobs:
         run: |
           argocd app set ${{ env.ARGOCD_APP_NAME }} \
             --path ${{ env.GITOPS_APP_PATH }}/${{ env.GITOPS_PATH }} \
-            --repo "git@github.com:${{ env.GITOPS_REPOSITORY }}.git" \
+            --repo "https://github.com/${{ env.GITOPS_REPOSITORY }}.git" \
             --dest-server ${{ env.ARGOCD_DEST_K8S_SERVER  }} \
             --revision ${{ needs.containerize.outputs.image_tag }} \
             --sync-option Prune=true
