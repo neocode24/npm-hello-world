@@ -173,9 +173,12 @@ jobs:
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
+          
           git add .
-          git commit -m "Update image tag to ${{ needs.containerize.outputs.image_tag }}"
-          git push origin HEAD
+          git commit --allow-empty -m 'update version tag ${{ needs.containerize.outputs.image_tag }} from Github Action'
+          git push origin ${{ env.BUILD_BRANCH }} -f
+          git tag -af "${{ needs.containerize.outputs.image_tag }}" -m "Update ${{ needs.containerize.outputs.image_tag }}"
+          git push origin "${{ needs.containerize.outputs.image_tag }}" -f
         continue-on-error: true
 
       - name: Login ArgoCD
