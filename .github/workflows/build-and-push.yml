@@ -176,6 +176,7 @@ jobs:
           git add .
           git commit -m "Update image tag to ${{ needs.containerize.outputs.image_tag }}"
           git push origin HEAD
+        continue-on-error: true
 
       - name: Login ArgoCD
         run: |
