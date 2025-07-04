@@ -14,3 +14,4 @@ jobs:
     steps:
       - name: Hello step
         run: echo "Hello, GitHub Actions! ${{ env.GLOBAL_VAR }}"
+        
