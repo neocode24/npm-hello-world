@@ -4,6 +4,7 @@ name: Hello World Workflow
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 env:
   GLOBAL_VAR: "This is a global variable"
